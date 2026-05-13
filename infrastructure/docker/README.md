@@ -1,13 +1,44 @@
 # Docker Infrastructure
 
-This directory contains Docker-related configuration files for the eBank platform.
+Docker configuration files for the eBank platform.
 
-## Contents
+## Files
 
-- Dockerfiles for services
-- Docker Compose configurations
-- Container initialization scripts
+- `Dockerfile.api` - NestJS backend container
+- `Dockerfile.web` - Next.js frontend container
+- `docker-compose.yml` - Local development environment (root directory)
 
-## Usage
+## Local Development
 
-Will be configured in Phase 1, Step 2.
+Start all services:
+```bash
+docker compose up -d
+```
+
+Stop all services:
+```bash
+docker compose down
+```
+
+View logs:
+```bash
+docker compose logs -f
+```
+
+## Services
+
+- PostgreSQL: localhost:5432
+- MongoDB: localhost:27017
+- Redis: localhost:6379
+
+## Building Images
+
+Build API image:
+```bash
+docker build -f infrastructure/docker/Dockerfile.api -t ebank-api:latest .
+```
+
+Build Web image:
+```bash
+docker build -f infrastructure/docker/Dockerfile.web -t ebank-web:latest .
+```

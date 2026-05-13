@@ -1,0 +1,163 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  CLOSED
+}
+
+enum AccountType {
+  CHECKING
+  SAVINGS
+  BUSINESS
+  CREDIT
+}
+
+enum AccountStatus {
+  ACTIVE
+  INACTIVE
+  FROZEN
+  CLOSED
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  TRANSFER
+  PAYMENT
+  FEE
+  INTEREST
+  REFUND
+}
+
+enum TransactionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+  REVERSED
+}
+
+model User {
+  id            String     @id @default(uuid())
+  email         String     @unique
+  password      String
+  firstName     String
+  lastName      String
+  phoneNumber   String?
+  dateOfBirth   DateTime?
+  address       String?
+  city          String?
+  country       String?
+  postalCode    String?
+  role          UserRole   @default(USER)
+  status        UserStatus @default(ACTIVE)
+  emailVerified Boolean    @default(false)
+  phoneVerified Boolean    @default(false)
+  twoFactorEnabled Boolean @default(false)
+  twoFactorSecret String?
+  lastLoginAt   DateTime?
+  lastLoginIp   String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  accounts      Account[]
+  sentTransfers Transaction[] @relation("SenderTransactions")
+  receivedTransfers Transaction[] @relation("ReceiverTransactions")
+  refreshTokens RefreshToken[]
+
+  @@index([email])
+  @@index([status])
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("refresh_tokens")
+}
+
+model Account {
+  id              String        @id @default(uuid())
+  accountNumber   String        @unique
+  accountType     AccountType
+  currency        String        @default("USD")
+  balance         Decimal       @default(0) @db.Decimal(15, 2)
+  availableBalance Decimal      @default(0) @db.Decimal(15, 2)
+  status          AccountStatus @default(ACTIVE)
+  overdraftLimit  Decimal?      @db.Decimal(15, 2)
+  interestRate    Decimal?      @db.Decimal(5, 4)
+  userId          String
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sentTransactions     Transaction[] @relation("FromAccount")
+  receivedTransactions Transaction[] @relation("ToAccount")
+
+  @@index([userId])
+  @@index([accountNumber])
+  @@index([status])
+  @@map("accounts")
+}
+
+model Transaction {
+  id              String            @id @default(uuid())
+  transactionType TransactionType
+  amount          Decimal           @db.Decimal(15, 2)
+  currency        String            @default("USD")
+  description     String?
+  reference       String?           @unique
+  status          TransactionStatus @default(PENDING)
+  fromAccountId   String?
+  toAccountId     String?
+  senderId        String?
+  receiverId      String?
+  fee             Decimal?          @db.Decimal(15, 2)
+  balanceAfter    Decimal?          @db.Decimal(15, 2)
+  metadata        Json?
+  processedAt     DateTime?
+  failureReason   String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  fromAccount     Account?          @relation("FromAccount", fields: [fromAccountId], references: [id])
+  toAccount       Account?          @relation("ToAccount", fields: [toAccountId], references: [id])
+  sender          User?             @relation("SenderTransactions", fields: [senderId], references: [id])
+  receiver        User?             @relation("ReceiverTransactions", fields: [receiverId], references: [id])
+
+  @@index([fromAccountId])
+  @@index([toAccountId])
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([status])
+  @@index([transactionType])
+  @@index([createdAt])
+  @@index([reference])
+  @@map("transactions")
+}

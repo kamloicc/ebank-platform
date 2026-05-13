@@ -1,9 +1,12 @@
-import { Body, Controller, Post, UseGuards, Request, Ip } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, Request } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+
+import { AuthenticatedRequest } from '../common/types/request.interface';
+
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { RegisterDto } from './dto/register.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @ApiTags('Authentication')
@@ -19,15 +22,18 @@ export class AuthController {
 
   @Post('login')
   @ApiOperation({ summary: 'Login user' })
-  async login(@Body() loginDto: LoginDto, @Ip() ip: string) {
-    return this.authService.login({ ...loginDto, ip });
+  async login(@Body() loginDto: LoginDto) {
+    return this.authService.login(loginDto);
   }
 
   @Post('logout')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Logout user' })
-  async logout(@Request() req: any, @Body('refreshToken') refreshToken: string) {
+  async logout(
+    @Request() req: AuthenticatedRequest,
+    @Body('refreshToken') refreshToken: string,
+  ) {
     return this.authService.logout(req.user.userId, refreshToken);
   }
 

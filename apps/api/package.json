@@ -1,0 +1,13 @@
+{
+  "name": "@ebank/api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NestJS backend API for eBank platform",
+  "scripts": {
+    "dev": "echo 'API will be initialized in next step'",
+    "build": "echo 'API will be initialized in next step'",
+    "start": "echo 'API will be initialized in next step'",
+    "lint": "echo 'API will be initialized in next step'",
+    "test": "echo 'API will be initialized in next step'"
+  }
+}

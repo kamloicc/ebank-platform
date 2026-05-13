@@ -1,0 +1,13 @@
+{
+  "name": "@ebank/web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Next.js frontend application for eBank platform",
+  "scripts": {
+    "dev": "echo 'Web app will be initialized in next step'",
+    "build": "echo 'Web app will be initialized in next step'",
+    "start": "echo 'Web app will be initialized in next step'",
+    "lint": "echo 'Web app will be initialized in next step'",
+    "test": "echo 'Web app will be initialized in next step'"
+  }
+}

@@ -5,7 +5,6 @@
   "compilerOptions": {
     "deleteOutDir": true,
     "assets": ["**/*.prisma"],
-    "watchAssets": true,
-    "tsConfigPath": "tsconfig.json"
+    "watchAssets": true
   }
 }

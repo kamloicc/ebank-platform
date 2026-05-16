@@ -22,8 +22,10 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     if (!isAuthenticated()) {
       router.push('/login');
     }
@@ -49,6 +51,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     { name: 'Transfer', href: '/transfer', icon: ArrowLeftRight },
     { name: 'Transactions', href: '/transactions', icon: History },
   ];
+
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!mounted) {
+    return null;
+  }
 
   if (!isAuthenticated()) {
     return null;
